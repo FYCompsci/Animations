@@ -1,6 +1,7 @@
 #Pygame Spirograph by Zack Nathan
 #Created by accident, and uses mechanics from the solar system animation
 #Draws cool swirly lines
+#Press enter to restart
 
 import sys
 import pygame 
