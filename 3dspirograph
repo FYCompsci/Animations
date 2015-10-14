@@ -1,0 +1,124 @@
+#Pygame 3D Spirograph
+#Also made by accident using the mechanics from the solar system animation
+#Draws cool 3D shapes
+#Press the "a" key to restart
+
+import sys
+import pygame 
+from pygame.locals import *
+from random import randint, random
+from math import *
+from time import sleep
+
+pygame.init() 
+
+screen = pygame.display.set_mode((1200, 800))
+pygame.display.set_caption ("3D Spirograph")
+
+x = 600
+y = 400
+degree = 0
+
+class planet:
+    size = 1
+    orbitradius = 1
+    orbittime = 1
+    colour = (255, 255, 255)
+    coordinates = [0, 0]
+
+    def render(self):
+
+        global degree
+
+        x = cos(degree * 2 * pi / self.orbittime) * (self.orbitradius + 50)
+        y = sin(degree * 2 * pi / self.orbittime) * (self.orbitradius + 50)
+
+        pygame.draw.line(screen, self.colour, (int(self.coordinates[0] + 600), int(self.coordinates[1] + 400)), (int(x + 600), int(y + 400)), 1)
+        
+        self.coordinates = [x, y]
+
+class moon:
+    size = 1
+    orbitradius = 1
+    orbittime = 1
+    colour = (255, 255, 255)
+    coordinates = [0, 0]
+
+    def render(self, planet):
+
+        global degree
+
+        x = cos(degree * 2 * pi / self.orbittime) * self.orbitradius
+        y = sin(degree * 2 * pi / self.orbittime) * self.orbitradius
+
+        pygame.draw.line(screen, self.colour, (int(self.coordinates[0] + 600 + planet.coordinates[0]), int(self.coordinates[1] + 400 + planet.coordinates[1])), (int(x + 600), int(y + 400)), 1)
+        
+        self.coordinates = [x + planet.coordinates[0], y + planet.coordinates[1]]
+
+def regenerate():
+    b = moon()
+    b.size = 4
+    b.orbitradius = randint(60, 140)
+    b.orbittime = randint(25, 80)
+
+    a = planet()
+    a.size = 4
+    a.orbitradius = randint(60, 140)
+    a.orbittime = b.orbittime + randint(-25, 120)
+
+    if random() > 0.5:
+        if random() > 0.33:
+            a.colour = (randint(150, 255), randint(150, 255), 0)
+        elif random() > 0.66:
+            a.colour = (randint(150, 255), 0, randint(150, 255))
+        else:
+            a.colour = (0, randint(150, 255), randint(150, 255))
+    else:
+        if random() > 0.33:
+            a.colour = (randint(150, 255), 0, 0)
+        elif random() > 0.66:
+            a.colour = (0, randint(150, 255), 0)
+        else:
+            a.colour = (0, 0, randint(150, 255))
+
+    b.colour = a.colour
+    return a, b
+
+screen.fill((0, 0, 0))
+
+s = pygame.Surface((1200,800))
+s.set_alpha(1)
+a, b = regenerate()
+
+while True:
+    
+    restart = False
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            sys.exit()
+        elif event.type == KEYDOWN:
+            if event.key == K_ESCAPE:
+                sys.exit()
+            if event.key == K_a:
+                restart = True
+
+    degree += 1
+
+    a.render()
+    b.render(a)
+
+    if degree % 20 == 0:
+        s.fill((0, 0, 0))
+        screen.blit(s, (0,0))
+
+    pygame.draw.circle(screen, (255, 255, 255), (600, 400), 5, 0)
+
+    pygame.display.flip()
+
+    if restart == True:
+        a, b = regenerate()
+        s.set_alpha(255)
+        s.fill((0, 0, 0))
+        screen.blit(s, (0,0))
+        s.set_alpha(1)
+
